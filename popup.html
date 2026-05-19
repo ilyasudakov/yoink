@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Cookie Transfer</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="header">
+    <div class="title">
+      <span class="dot" id="dot"></span>
+      <span>Cookie Transfer</span>
+    </div>
+    <button class="icon-btn" id="transfer-btn" title="Copy cookies to active localhost tab">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/>
+        <path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="row">
+    <div>
+      <div class="row-label">Pause extension</div>
+      <div class="row-sub">Disable cookie syncing</div>
+    </div>
+    <label class="switch">
+      <input type="checkbox" id="global-pause" />
+      <span class="switch-slider"></span>
+    </label>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="section-label">Source hosts</div>
+  <div id="hosts" class="hosts"></div>
+
+  <div class="add">
+    <input type="text" id="new-host" placeholder="Add a source host" spellcheck="false" autocomplete="off" />
+    <button id="add-btn">Add</button>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <div class="hint">
+    Cookies sync to <code>localhost</code> tabs on load. For Incognito enable <strong>Allow in Incognito</strong> on the extension page.
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
