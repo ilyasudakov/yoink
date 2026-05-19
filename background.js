@@ -4,12 +4,6 @@ const DEFAULT_STATE = {
   showPanel: false
 };
 
-const ICON_SETS = {
-  active: { 16: "icon-active.png", 48: "icon-active.png", 128: "icon-active.png" },
-  paused: { 16: "icon-paused.png", 48: "icon-paused.png", 128: "icon-paused.png" },
-  idle:   { 16: "icon-idle.png",   48: "icon-idle.png",   128: "icon-idle.png" }
-};
-
 function computeStatus(state) {
   if (state.globallyPaused) return "paused";
   const active = (state.hosts || []).filter((h) => !h.paused);
@@ -17,20 +11,15 @@ function computeStatus(state) {
   return "active";
 }
 
-async function updateActionIcon() {
+async function updateActionTitle() {
   const state = await getState();
   const status = computeStatus(state);
-  try {
-    await chrome.action.setIcon({ path: ICON_SETS[status] });
-  } catch (e) {}
-  try {
-    const titles = {
-      active: "Yoink — active",
-      paused: "Yoink — paused",
-      idle:   "Yoink — no hosts"
-    };
-    await chrome.action.setTitle({ title: titles[status] });
-  } catch (e) {}
+  const titles = {
+    active: "Yoink — active",
+    paused: "Yoink — paused",
+    idle:   "Yoink — no hosts"
+  };
+  try { await chrome.action.setTitle({ title: titles[status] }); } catch (e) {}
 }
 
 const LOCALHOST_PATTERNS = [
@@ -264,14 +253,14 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 chrome.runtime.onInstalled.addListener(async () => {
   const data = await chrome.storage.local.get(null);
   if (!data.hosts) await chrome.storage.local.set(DEFAULT_STATE);
-  await updateActionIcon();
+  await updateActionTitle();
 });
 
-chrome.runtime.onStartup.addListener(() => { updateActionIcon(); });
+chrome.runtime.onStartup.addListener(() => { updateActionTitle(); });
 
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area !== "local") return;
-  if (changes.hosts || changes.globallyPaused) updateActionIcon();
+  if (changes.hosts || changes.globallyPaused) updateActionTitle();
 });
 
-updateActionIcon();
+updateActionTitle();

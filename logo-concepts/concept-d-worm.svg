@@ -1,0 +1,46 @@
+<!-- Concept D v2: cute gradient worm — clean tapered noodle.
+     Centerline waypoints (x, y, body width):
+       head exit: (80, 75, 70)
+       valley 1:  (115, 110, 58)
+       peak 1:   (160, 75, 45)
+       valley 2:  (200, 110, 32)
+       tail tip:  (240, 95, 16)
+     Top/bottom edges derived from those, joined with smooth cubics.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 180" width="260" height="180">
+  <defs>
+    <linearGradient id="wormGradD" x1="0.1" y1="0.05" x2="0.95" y2="0.8">
+      <stop offset="0"    stop-color="#b03ff5"/>
+      <stop offset="0.4"  stop-color="#7a52ef"/>
+      <stop offset="0.75" stop-color="#3a80f2"/>
+      <stop offset="1"    stop-color="#22d3ee"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Body: traces top edge L→R, rounds the tail, then traces bottom edge R→L -->
+  <path d="
+    M 80 40
+    C 100 40, 105 75, 115 81
+    C 125 87, 145 55, 160 52
+    C 175 49, 190 94, 200 94
+    C 210 94, 230 87, 240 87
+    A 8 8 0 0 1 240 103
+    C 230 103, 215 119, 200 126
+    C 185 133, 175 100, 160 97
+    C 145 94, 130 139, 115 139
+    C 100 139, 90 115, 80 110
+    Z
+  " fill="url(#wormGradD)"/>
+
+  <!-- Head — overlaps body junction, same gradient = seamless -->
+  <circle cx="52" cy="75" r="42" fill="url(#wormGradD)"/>
+
+  <!-- Eyes -->
+  <ellipse cx="38" cy="68" rx="3.5" ry="5.5" fill="#1a1830"/>
+  <ellipse cx="60" cy="68" rx="3.5" ry="5.5" fill="#1a1830"/>
+
+  <!-- Smile -->
+  <path d="M 40 88 Q 49 96, 58 88"
+        fill="none" stroke="#1a1830"
+        stroke-width="3" stroke-linecap="round"/>
+</svg>

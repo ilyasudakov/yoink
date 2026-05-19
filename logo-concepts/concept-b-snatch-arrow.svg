@@ -1,0 +1,40 @@
+<!-- Concept B: "Snatch Arrow" — a curved arrow swooping in to grab a cookie/dot
+     and pull it toward the bottom-left (toward your localhost). Reads as motion
+     and action; no letter. More illustrative than monogram-style. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="bgB" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1f1f1f"/>
+      <stop offset="1" stop-color="#0a0a0a"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Rounded-square background -->
+  <rect width="128" height="128" rx="28" ry="28" fill="url(#bgB)"/>
+  <rect x="0.5" y="0.5" width="127" height="127" rx="27.5" ry="27.5"
+        fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+
+  <!-- Faint trailing motion arc (suggests speed) -->
+  <path d="M 100 24 Q 116 64 80 92"
+        fill="none"
+        stroke="rgba(255,255,255,0.2)"
+        stroke-width="6"
+        stroke-linecap="round"
+        stroke-dasharray="2 8"/>
+
+  <!-- Main arrow: curved swoop from top-right down through center to bottom-left -->
+  <path d="M 96 28 Q 108 60 76 80 Q 52 92 36 96"
+        fill="none"
+        stroke="#22c187"
+        stroke-width="12"
+        stroke-linecap="round"/>
+
+  <!-- Arrowhead pointing down-left at the destination (localhost) -->
+  <g fill="none" stroke="#22c187" stroke-width="12" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 36 96 L 48 86"/>
+    <path d="M 36 96 L 46 108"/>
+  </g>
+
+  <!-- The cookie/dot being yoinked, sitting on the arrow path -->
+  <circle cx="76" cy="80" r="9" fill="#ffffff"/>
+</svg>
