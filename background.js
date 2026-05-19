@@ -25,9 +25,9 @@ async function updateActionIcon() {
   } catch (e) {}
   try {
     const titles = {
-      active: "Cookie Transfer — active",
-      paused: "Cookie Transfer — paused",
-      idle:   "Cookie Transfer — no hosts"
+      active: "Yoink — active",
+      paused: "Yoink — paused",
+      idle:   "Yoink — no hosts"
     };
     await chrome.action.setTitle({ title: titles[status] });
   } catch (e) {}

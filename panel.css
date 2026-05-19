@@ -225,31 +225,32 @@
   top: 0;
   right: 0;
   z-index: 2147483647;
-  padding: 12px 18px 12px 16px;
+  padding: 8px 12px 8px 10px;
   background: #1a1a1a;
   color: #ffffff;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 450;
-  border-radius: 0 0 0 14px;
-  box-shadow: 0 12px 32px rgba(0,0,0,0.18);
+  letter-spacing: -0.005em;
+  border-radius: 0 0 0 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
   opacity: 0;
-  transform: translateY(-8px);
+  transform: translateY(-6px);
   pointer-events: none;
-  transition: opacity 200ms ease, transform 200ms cubic-bezier(0.4,0,0.2,1);
+  transition: opacity 180ms ease, transform 180ms cubic-bezier(0.4,0,0.2,1);
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 7px;
   white-space: nowrap;
-  max-width: min(420px, 80vw);
+  max-width: min(360px, 80vw);
 }
 #cookie-transfer-root .toast.visible {
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
 }
-#cookie-transfer-root .toast[data-kind="success"] { background: #0f7d4f; }
-#cookie-transfer-root .toast[data-kind="error"] { background: #c0392b; }
-#cookie-transfer-root .toast svg { width: 15px; height: 15px; flex-shrink: 0; }
+#cookie-transfer-root .toast[data-kind="success"] { background: #065f46; }
+#cookie-transfer-root .toast[data-kind="error"] { background: #991b1b; }
+#cookie-transfer-root .toast svg { width: 13px; height: 13px; flex-shrink: 0; opacity: 0.9; }
 
 @media (prefers-color-scheme: dark) {
   #cookie-transfer-root .panel { background: #1f1f1f; border-color: rgba(255,255,255,0.08); }

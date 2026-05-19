@@ -1,6 +1,6 @@
-# Cookie Transfer for Localhost
+# Yoink
 
-Chrome extension (Manifest V3) that automatically copies cookies from configured source hosts (e.g. staging/QA) to `localhost` tabs on load. Useful for local testing of apps that need a real auth session.
+A Chrome extension (Manifest V3) that yoinks cookies from any configured host (staging, QA, prod) onto your `localhost` tabs on load. Built for local testing of apps that need a real auth session — no more manually copying cookies through DevTools.
 
 ## Install (unpacked)
 
@@ -11,22 +11,25 @@ Chrome extension (Manifest V3) that automatically copies cookies from configured
 
 ## Usage
 
-- Click the extension icon (or use the floating panel that appears on any `localhost` page) to add source hosts (any staging/QA origin you want to pull cookies from)
-- Cookies are auto-copied to `localhost` / `127.0.0.1` tabs every time they navigate/reload
+- Click the toolbar icon to open the popup; add source hosts (any origin you want to yoink cookies from)
+- Cookies are auto-copied to `localhost` / `127.0.0.1` tabs every time they load
 - Pause individual hosts via the ⏸ button, or pause the whole extension via the global switch
-- A toast on the page + a Chrome notification confirm how many cookies were copied
+- Optional floating panel on the localhost page itself (off by default — enable in the popup)
+- A toast in the top-right corner confirms how many cookies were copied
+- Toolbar icon turns green when active, amber when paused, gray when no hosts are configured
 
 ## Notes / limitations
 
 - `Secure` cookies cannot be set on `http://localhost` and are skipped silently — use `https://localhost` if you need them
-- `__Host-` / `__Secure-` prefixed cookies have strict rules and may not transfer to localhost
-- Cross-store: incognito has its own cookie jar. The extension writes to the matching store of the localhost tab
-- The extension never sends cookies anywhere — copying happens entirely via the Chrome cookies API
+- `__Host-` / `__Secure-` prefixed cookies have strict rules and may not transfer
+- Incognito has its own cookie jar; Yoink writes to the matching store of the localhost tab
+- Cookies never leave the browser — copying happens entirely via the Chrome cookies API
 
 ## Files
 
 - `manifest.json` — MV3 manifest
-- `background.js` — service worker, listens to tab updates and copies cookies
-- `content.js` + `panel.css` — floating overlay panel on localhost pages
-- `popup.html` + `popup.js` + `popup.css` — toolbar popup with the same controls
-- `icon.png` — toolbar / notification icon
+- `background.js` — service worker; listens for tab loads and copies cookies
+- `shared.js` — shared helpers (icons, render, toast) used by both popup and content script
+- `content.js` + `panel.css` — optional floating overlay panel on localhost pages
+- `popup.html` + `popup.js` + `popup.css` — toolbar popup
+- `icon-active.png` / `icon-paused.png` / `icon-idle.png` — status-colored toolbar icons

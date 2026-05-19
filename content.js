@@ -23,7 +23,7 @@
       <div class="header" data-action="toggle">
         <div class="title">
           <span class="dot"></span>
-          <span>Cookie Transfer</span>
+          <span>Yoink</span>
         </div>
         <div class="header-actions">
           <button class="icon-btn" data-action="transfer" title="Copy cookies now" data-stop>${CT_ICONS.refresh}</button>
