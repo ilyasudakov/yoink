@@ -1,6 +1,7 @@
 const DEFAULT_STATE = {
   hosts: [],
-  globallyPaused: false
+  globallyPaused: false,
+  showPanel: false
 };
 
 const ICON_SETS = {
@@ -229,6 +230,11 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       }
       if (msg.type === "set-global-pause") {
         await setState({ globallyPaused: !!msg.paused });
+        sendResponse({ ok: true });
+        return;
+      }
+      if (msg.type === "set-show-panel") {
+        await setState({ showPanel: !!msg.show });
         sendResponse({ ok: true });
         return;
       }

@@ -29,7 +29,7 @@
         "https://localhost/*",
         "https://localhost:*/*"
       ],
-      "js": ["content.js"],
+      "js": ["shared.js", "content.js"],
       "css": ["panel.css"],
       "run_at": "document_idle",
       "all_frames": false

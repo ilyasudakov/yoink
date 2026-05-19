@@ -1,140 +1,105 @@
 (function () {
-  if (window.__cookieTransferPanelInjected) return;
-  window.__cookieTransferPanelInjected = true;
-
-  const ICONS = {
-    refresh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/><path d="M3 21v-5h5"/></svg>',
-    chevron: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>',
-    pause: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>',
-    play: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 4 20 12 6 20 6 4"/></svg>',
-    trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="M19 6v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6"/></svg>',
-    check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
-    info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v.01"/><path d="M11 12h1v4h1"/></svg>'
-  };
+  if (window.__cookieTransferInjected) return;
+  window.__cookieTransferInjected = true;
 
   const root = document.createElement("div");
   root.id = "cookie-transfer-root";
-  root.innerHTML = `
-    <div class="ct-panel" data-collapsed="false">
-      <div class="ct-header" data-action="toggle">
-        <div class="ct-title">
-          <span class="ct-dot"></span>
+  root.innerHTML = `<div class="toast" id="ct-toast"></div>`;
+  document.documentElement.appendChild(root);
+
+  const toastEl = root.querySelector("#ct-toast");
+  const showToast = ctMakeToast(toastEl);
+
+  let panelEl = null;
+  let refs = null;
+  let suggestion = null;
+
+  function mountPanel() {
+    if (panelEl) return;
+    panelEl = document.createElement("div");
+    panelEl.className = "panel";
+    panelEl.dataset.collapsed = "false";
+    panelEl.innerHTML = `
+      <div class="header" data-action="toggle">
+        <div class="title">
+          <span class="dot"></span>
           <span>Cookie Transfer</span>
         </div>
-        <div class="ct-header-actions">
-          <button class="ct-icon-btn" data-action="transfer" title="Copy cookies now" data-stop>${ICONS.refresh}</button>
-          <button class="ct-icon-btn ct-chevron" title="Collapse">${ICONS.chevron}</button>
+        <div class="header-actions">
+          <button class="icon-btn" data-action="transfer" title="Copy cookies now" data-stop>${CT_ICONS.refresh}</button>
+          <button class="icon-btn chevron" title="Collapse">${CT_ICONS.chevron}</button>
         </div>
       </div>
-      <div class="ct-body">
-        <div class="ct-row">
+      <div class="body">
+        <div class="row">
           <div>
-            <div class="ct-row-label">Pause extension</div>
-            <div class="ct-row-sub">Disable cookie syncing</div>
+            <div class="row-label">Pause extension</div>
+            <div class="row-sub">Disable cookie syncing</div>
           </div>
-          <label class="ct-switch" data-stop>
+          <label class="switch" data-stop>
             <input type="checkbox" id="ct-global-pause" />
-            <span class="ct-switch-slider"></span>
+            <span class="switch-slider"></span>
           </label>
         </div>
-        <div class="ct-divider"></div>
-        <div class="ct-section-label">Source hosts</div>
-        <div class="ct-hosts" id="ct-hosts"></div>
-        <div class="ct-add" data-stop>
+        <div class="divider"></div>
+        <div class="section-label">Source hosts</div>
+        <div class="hosts" id="ct-hosts"></div>
+        <div class="add" data-stop>
           <input type="text" id="ct-new-host" placeholder="Add a source host" spellcheck="false" autocomplete="off" />
           <button id="ct-add-btn">Add</button>
         </div>
       </div>
-    </div>
-    <div class="ct-toast" id="ct-toast"></div>
-  `;
-  document.documentElement.appendChild(root);
+    `;
+    root.insertBefore(panelEl, toastEl);
 
-  const panel = root.querySelector(".ct-panel");
-  const hostsEl = root.querySelector("#ct-hosts");
-  const globalPauseEl = root.querySelector("#ct-global-pause");
-  const newHostInput = root.querySelector("#ct-new-host");
-  const toastEl = root.querySelector("#ct-toast");
-  const dotEl = root.querySelector(".ct-dot");
+    refs = {
+      hostsEl: panelEl.querySelector("#ct-hosts"),
+      globalPauseEl: panelEl.querySelector("#ct-global-pause"),
+      newHostInput: panelEl.querySelector("#ct-new-host"),
+      dotEl: panelEl.querySelector(".dot"),
+      addBtn: panelEl.querySelector("#ct-add-btn")
+    };
 
-  function send(msg) {
-    return new Promise((resolve) => {
-      try {
-        chrome.runtime.sendMessage(msg, (resp) => resolve(resp));
-      } catch (e) {
-        resolve({ ok: false, error: String(e) });
-      }
+    suggestion = ctSetupSuggestion(refs.newHostInput);
+
+    panelEl.addEventListener("click", onPanelClick);
+    refs.globalPauseEl.addEventListener("change", async () => {
+      await ctSend({ type: "set-global-pause", paused: refs.globalPauseEl.checked });
     });
+    refs.addBtn.addEventListener("click", onAddClick);
+    refs.newHostInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") refs.addBtn.click();
+    });
+
+    renderPanel();
   }
 
-  function showToast(text, kind) {
-    const icon = kind === "success" ? ICONS.check : kind === "error" ? ICONS.info : ICONS.info;
-    toastEl.innerHTML = `${icon}<span>${text}</span>`;
-    toastEl.dataset.kind = kind || "info";
-    toastEl.classList.add("visible");
-    clearTimeout(showToast._t);
-    showToast._t = setTimeout(() => toastEl.classList.remove("visible"), 2800);
+  function unmountPanel() {
+    if (!panelEl) return;
+    panelEl.remove();
+    panelEl = null;
+    refs = null;
+    suggestion = null;
   }
 
-  function renderHosts(state) {
-    hostsEl.innerHTML = "";
-    if (!state.hosts || state.hosts.length === 0) {
-      const empty = document.createElement("div");
-      empty.className = "ct-empty";
-      empty.textContent = "No hosts yet — add one below.";
-      hostsEl.appendChild(empty);
-      return;
-    }
-    for (const host of state.hosts) {
-      const row = document.createElement("div");
-      row.className = "ct-host";
-      row.dataset.paused = host.paused ? "true" : "false";
-      let hostname = host.url;
-      try { hostname = new URL(host.url).hostname; } catch (e) {}
-      row.innerHTML = `
-        <span class="ct-host-dot"></span>
-        <span class="ct-host-url" title="${host.url}">${hostname}</span>
-        <div class="ct-host-actions">
-          <button class="ct-icon-btn" data-action="pause" data-id="${host.id}" title="${host.paused ? "Resume" : "Pause"}">${host.paused ? ICONS.play : ICONS.pause}</button>
-          <button class="ct-icon-btn" data-action="remove" data-id="${host.id}" title="Remove">${ICONS.trash}</button>
-        </div>
-      `;
-      hostsEl.appendChild(row);
-    }
-  }
-
-  function updateDot(state) {
-    if (state.globallyPaused) dotEl.dataset.state = "paused";
-    else if (!state.hosts || state.hosts.filter((h) => !h.paused).length === 0) dotEl.dataset.state = "idle";
-    else dotEl.dataset.state = "active";
-  }
-
-  async function refresh() {
-    const state = await send({ type: "get-state" });
-    if (!state) return;
-    globalPauseEl.checked = !!state.globallyPaused;
-    renderHosts(state);
-    updateDot(state);
-  }
-
-  root.addEventListener("click", async (e) => {
+  async function onPanelClick(e) {
     const stop = e.target.closest("[data-stop]");
     const btn = e.target.closest("[data-action]");
     if (!btn) return;
     if (stop && btn.dataset.action !== "transfer") return;
     const action = btn.dataset.action;
     if (action === "toggle") {
-      const collapsed = panel.dataset.collapsed === "true";
-      panel.dataset.collapsed = collapsed ? "false" : "true";
+      const collapsed = panelEl.dataset.collapsed === "true";
+      panelEl.dataset.collapsed = collapsed ? "false" : "true";
       return;
     }
     if (action === "transfer") {
       e.stopPropagation();
-      const r = await send({ type: "transfer-now" });
+      const r = await ctSend({ type: "transfer-now" });
       if (r && r.ok) {
         const copied = r.result && r.result.copied;
         if (copied > 0) showToast(`Copied ${copied} cookie${copied === 1 ? "" : "s"}`, "success");
-        else showToast(humanSkip(r.result), "info");
+        else showToast(ctHumanSkip(r.result), "info");
       } else {
         showToast("Transfer failed", "error");
       }
@@ -142,81 +107,57 @@
     }
     if (action === "pause") {
       e.stopPropagation();
-      await send({ type: "toggle-host-pause", id: btn.dataset.id });
-      await refresh();
+      await ctSend({ type: "toggle-host-pause", id: btn.dataset.id });
       return;
     }
     if (action === "remove") {
       e.stopPropagation();
-      await send({ type: "remove-host", id: btn.dataset.id });
-      await refresh();
+      await ctSend({ type: "remove-host", id: btn.dataset.id });
       return;
     }
-  });
-
-  function humanSkip(result) {
-    if (!result) return "Nothing to copy";
-    if (result.skipped === "globally-paused") return "Extension is paused";
-    if (result.skipped === "not-localhost") return "Not a localhost tab";
-    if (result.skipped === "no-active-hosts") return "No active source hosts";
-    return "No cookies copied";
   }
 
-  globalPauseEl.addEventListener("change", async () => {
-    await send({ type: "set-global-pause", paused: globalPauseEl.checked });
-    await refresh();
-  });
-
-  root.querySelector("#ct-add-btn").addEventListener("click", async () => {
-    const url = newHostInput.value.trim();
+  async function onAddClick() {
+    const url = refs.newHostInput.value.trim();
     if (!url) return;
-    const r = await send({ type: "add-host", url });
+    const r = await ctSend({ type: "add-host", url });
     if (r && r.ok) {
-      newHostInput.value = "";
-      await refresh();
+      refs.newHostInput.value = "";
       showToast("Host added", "success");
     } else {
       const reason = r && r.error === "duplicate" ? "Already added" : "Invalid URL";
       showToast(reason, "error");
     }
-  });
-  let suggestedHost = null;
-  async function refreshSuggestion() {
-    const r = await send({ type: "get-suggested-host" });
-    suggestedHost = (r && r.ok && r.suggestion) || null;
-    if (suggestedHost) {
-      try {
-        newHostInput.placeholder = new URL(suggestedHost).hostname + "  (Tab to fill)";
-      } catch (e) {
-        newHostInput.placeholder = suggestedHost + "  (Tab to fill)";
-      }
-    } else {
-      newHostInput.placeholder = "Add a source host";
-    }
   }
-  refreshSuggestion();
 
-  newHostInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      root.querySelector("#ct-add-btn").click();
-      return;
-    }
-    if (e.key === "Tab" && !e.shiftKey && !newHostInput.value && suggestedHost) {
-      e.preventDefault();
-      newHostInput.value = suggestedHost;
-    }
-  });
-  newHostInput.addEventListener("focus", refreshSuggestion);
+  async function renderPanel() {
+    if (!refs) return;
+    const state = await ctSend({ type: "get-state" });
+    if (!state || !refs) return;
+    refs.globalPauseEl.checked = !!state.globallyPaused;
+    ctRenderHosts(refs.hostsEl, state);
+    ctUpdateDot(refs.dotEl, state);
+  }
+
+  async function syncPanelVisibility() {
+    const state = await ctSend({ type: "get-state" });
+    if (!state) return;
+    if (state.showPanel) mountPanel();
+    else unmountPanel();
+  }
 
   chrome.runtime.onMessage.addListener((msg) => {
-    if (msg && msg.type === "cookie-transfer:notify") {
-      if (msg.copied > 0) {
-        const hostCount = msg.perHost.filter((h) => h.copied > 0).length;
-        showToast(`Copied ${msg.copied} cookie${msg.copied === 1 ? "" : "s"} · ${hostCount} host${hostCount === 1 ? "" : "s"}`, "success");
-      }
+    if (msg && msg.type === "cookie-transfer:notify" && msg.copied > 0) {
+      const hostCount = msg.perHost.filter((h) => h.copied > 0).length;
+      showToast(`Copied ${msg.copied} cookie${msg.copied === 1 ? "" : "s"} · ${hostCount} host${hostCount === 1 ? "" : "s"}`, "success");
     }
   });
 
-  chrome.storage.onChanged.addListener(() => refresh());
-  refresh();
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area !== "local") return;
+    if (changes.showPanel) syncPanelVisibility();
+    if (refs && (changes.hosts || changes.globallyPaused)) renderPanel();
+  });
+
+  syncPanelVisibility();
 })();
