@@ -1,26 +1,23 @@
-<svg width="512" height="384" viewBox="0 0 512 384" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="wormGradient" x1="89" y1="94" x2="421" y2="252" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#B236FF"/>
-      <stop offset="0.45" stop-color="#6837FF"/>
-      <stop offset="0.76" stop-color="#008FFF"/>
-      <stop offset="1" stop-color="#02CFE3"/>
-    </linearGradient>
-    <filter id="softShadow" x="50" y="45" width="410" height="270" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#22185F" flood-opacity="0.12"/>
-    </filter>
+    <!-- Mask: cookie body minus the bite + the chip cutouts -->
+    <mask id="cookieMask">
+      <!-- Cookie body (white = visible) -->
+      <circle cx="128" cy="128" r="88" fill="white"/>
+      <!-- Bite cutout (black = transparent), nestled into the top-right edge -->
+      <circle cx="200" cy="84" r="34" fill="black"/>
+      <!-- Chip cutouts -->
+      <circle cx="96"  cy="100" r="9"  fill="black"/>
+      <circle cx="142" cy="96"  r="7"  fill="black"/>
+      <circle cx="160" cy="138" r="9"  fill="black"/>
+      <circle cx="106" cy="150" r="8"  fill="black"/>
+      <circle cx="135" cy="170" r="7"  fill="black"/>
+      <circle cx="80"  cy="130" r="5"  fill="black"/>
+    </mask>
   </defs>
 
-  <rect width="512" height="384" fill="white"/>
+  <rect width="256" height="256" fill="white"/>
 
-  <g filter="url(#softShadow)">
-    <path
-      d="M129.5 74C93.5 74 76 101.5 76 126.5C76 148.5 90.5 166.5 113.5 169.5C124.5 171 130 175.5 130.5 189C132.5 247 176 292.5 230 282C263 275.5 276 245.5 286.5 224C296 204.5 312 204 321 222.5C337 255.5 354 274.5 388 268C416 262.5 436 240.5 436 213.5C436 201.5 428.5 193 417.5 193C405 193 397.5 201.5 394.5 213.5C390.5 229 378.5 228.5 373.5 217C360 185.5 342.5 159 306 157C267 155 249.5 182.5 237.5 207.5C228 227.5 208 230 196 217C187.5 207.5 190 188 190 166.5V133.5C190 96.5 166.5 74 129.5 74Z"
-      fill="url(#wormGradient)"
-    />
-
-    <ellipse cx="103.5" cy="121" rx="9.5" ry="12.5" transform="rotate(12 103.5 121)" fill="#13084F"/>
-    <ellipse cx="157.5" cy="121" rx="9.5" ry="12.5" transform="rotate(-10 157.5 121)" fill="#13084F"/>
-    <path d="M119.5 135.5C124.5 143.5 136.5 144.5 142 135.5" stroke="#13084F" stroke-width="6" stroke-linecap="round"/>
-  </g>
+  <!-- Single solid color cookie -->
+  <circle cx="128" cy="128" r="88" fill="#FF6A00" mask="url(#cookieMask)"/>
 </svg>
