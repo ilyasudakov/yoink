@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Yoink — Cookie Sync for Localhost",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Yoink cookies from any host onto your localhost for local testing.",
   "permissions": [
     "cookies",
