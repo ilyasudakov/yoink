@@ -12,33 +12,8 @@ const CT_ICONS = {
   info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v.01"/><path d="M11 12h1v4h1"/></svg>'
 };
 
-// Destination matching — mirrors the logic in background.js so the content
-// script can tell whether the page it runs on is a real (active) destination.
-function ctDestPatternToRegExp(pattern) {
-  let p = String(pattern || "").trim().replace(/\/+$/, "");
-  if (!p) return null;
-  let scheme = "https?";
-  const m = p.match(/^([a-zA-Z][a-zA-Z0-9+.-]*):\/\//);
-  if (m) { scheme = m[1]; p = p.slice(m[0].length); }
-  const slash = p.indexOf("/");
-  const hostport = slash === -1 ? p : p.slice(0, slash);
-  const path = slash === -1 ? "" : p.slice(slash);
-  if (!hostport) return null;
-  const escapeRe = (s) => s.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, ".*");
-  let re = "^" + scheme + ":\\/\\/" + escapeRe(hostport);
-  if (!hostport.includes(":")) re += "(:\\d+)?";
-  re += path ? escapeRe(path) + "(/.*)?$" : "(/.*)?$";
-  try { return new RegExp(re, "i"); } catch (e) { return null; }
-}
-
-function ctIsActiveDestination(url, state) {
-  if (!url) return false;
-  const dests = (state && state.destinations || []).filter((d) => d && d.pattern && !d.paused);
-  return dests.some((d) => {
-    const re = ctDestPatternToRegExp(d.pattern);
-    return re && re.test(url);
-  });
-}
+// Destination matching lives in matching.js (loaded before this file in both
+// the popup and the content script), exposing isActiveDestination() globally.
 
 function ctSend(msg) {
   return new Promise((resolve) => {

@@ -29,8 +29,17 @@ A Chrome extension (Manifest V3) that yoinks cookies from any configured host (s
 ## Files
 
 - `manifest.json` — MV3 manifest
+- `matching.js` — pure host/destination matching + normalization logic, shared by the worker, popup, content script, and tests
 - `background.js` — service worker; listens for tab loads and copies cookies
 - `shared.js` — shared helpers (icons, render, toast) used by both popup and content script
 - `content.js` + `panel.css` — optional floating overlay panel on synced (localhost/staging) pages
 - `popup.html` + `popup.js` + `popup.css` — toolbar popup
 - `icon-active.png` / `icon-paused.png` / `icon-idle.png` — status-colored toolbar icons
+
+## Tests
+
+The pure logic in `matching.js` (pattern matching, wildcards, normalization) is covered by unit tests using Node's built-in test runner — no dependencies, no build step:
+
+```bash
+npm test          # node --test
+```

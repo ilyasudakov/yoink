@@ -182,7 +182,7 @@
     if (!state) return;
     // Dynamic registration may match a broader host set than the user's exact
     // pattern, so confirm this page is really an active destination.
-    const onDestination = ctIsActiveDestination(location.href, state);
+    const onDestination = isActiveDestination(location.href, state);
     if (state.showPanel && onDestination) mountPanel();
     else unmountPanel();
   }
