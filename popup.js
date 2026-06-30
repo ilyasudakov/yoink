@@ -1,8 +1,11 @@
 const hostsEl = document.getElementById("hosts");
+const destinationsEl = document.getElementById("destinations");
 const globalPauseEl = document.getElementById("global-pause");
 const showPanelEl = document.getElementById("show-panel");
 const newHostInput = document.getElementById("new-host");
+const newDestInput = document.getElementById("new-destination");
 const addBtn = document.getElementById("add-btn");
+const addDestBtn = document.getElementById("add-dest-btn");
 const transferBtn = document.getElementById("transfer-btn");
 const toastEl = document.getElementById("toast");
 const dotEl = document.getElementById("dot");
@@ -16,6 +19,7 @@ async function refresh() {
   globalPauseEl.checked = !!state.globallyPaused;
   showPanelEl.checked = !!state.showPanel;
   ctRenderHosts(hostsEl, state);
+  ctRenderDestinations(destinationsEl, state);
   ctUpdateDot(dotEl, state);
 }
 
@@ -24,6 +28,14 @@ hostsEl.addEventListener("click", async (e) => {
   if (!btn) return;
   if (btn.dataset.action === "pause") await ctSend({ type: "toggle-host-pause", id: btn.dataset.id });
   if (btn.dataset.action === "remove") await ctSend({ type: "remove-host", id: btn.dataset.id });
+  await refresh();
+});
+
+destinationsEl.addEventListener("click", async (e) => {
+  const btn = e.target.closest("[data-action]");
+  if (!btn) return;
+  if (btn.dataset.action === "dest-pause") await ctSend({ type: "toggle-destination-pause", id: btn.dataset.id });
+  if (btn.dataset.action === "dest-remove") await ctSend({ type: "remove-destination", id: btn.dataset.id });
   await refresh();
 });
 
@@ -52,6 +64,23 @@ addBtn.addEventListener("click", async () => {
 
 newHostInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter") addBtn.click();
+});
+
+addDestBtn.addEventListener("click", async () => {
+  const pattern = newDestInput.value.trim();
+  if (!pattern) return;
+  const r = await ctSend({ type: "add-destination", pattern });
+  if (r && r.ok) {
+    newDestInput.value = "";
+    showToast("Destination added", "success");
+    await refresh();
+  } else {
+    showToast(r && r.error === "duplicate" ? "Already added" : "Invalid pattern", "error");
+  }
+});
+
+newDestInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") addDestBtn.click();
 });
 
 transferBtn.addEventListener("click", async () => {
