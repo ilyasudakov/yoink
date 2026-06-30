@@ -1,12 +1,13 @@
 {
   "manifest_version": 3,
-  "name": "Yoink — Cookie Sync for Localhost",
-  "version": "1.0.2",
-  "description": "Yoink cookies from any host onto your localhost for local testing.",
+  "name": "Yoink — Cookie Sync for Localhost & Staging",
+  "version": "1.1.0",
+  "description": "Yoink cookies from any host onto your localhost or staging tabs for testing.",
   "permissions": [
     "cookies",
     "storage",
-    "tabs"
+    "tabs",
+    "scripting"
   ],
   "host_permissions": [
     "<all_urls>"
@@ -26,7 +27,7 @@
         "https://localhost/*",
         "https://127.0.0.1/*"
       ],
-      "js": ["shared.js", "content.js"],
+      "js": ["matching.js", "shared.js", "content.js"],
       "css": ["panel.css"],
       "run_at": "document_idle",
       "all_frames": false

@@ -1,6 +1,6 @@
 # Yoink
 
-A Chrome extension (Manifest V3) that yoinks cookies from any configured host (staging, QA, prod) onto your `localhost` tabs on load. Built for local testing of apps that need a real auth session — no more manually copying cookies through DevTools.
+A Chrome extension (Manifest V3) that yoinks cookies from any configured host (staging, QA, prod) onto your `localhost` or staging tabs on load. Built for testing apps that need a real auth session — no more manually copying cookies through DevTools.
 
 ## Install (unpacked)
 
@@ -13,8 +13,9 @@ A Chrome extension (Manifest V3) that yoinks cookies from any configured host (s
 
 - Click the toolbar icon to open the popup; add source hosts (any origin you want to yoink cookies from)
 - Cookies are auto-copied to `localhost` / `127.0.0.1` tabs every time they load
-- Pause individual hosts via the ⏸ button, or pause the whole extension via the global switch
-- Optional floating panel on the localhost page itself (off by default — enable in the popup)
+- **Destinations** are the tabs cookies sync onto. `localhost` / `127.0.0.1` come pre-added (removable); add staging hosts with `*` wildcards — e.g. `app-*.staging.example.com`, `https://*.preview.example.com/`
+- Pause individual hosts/destinations via the ⏸ button, or pause the whole extension via the global switch
+- Optional floating panel on synced pages (off by default — enable in the popup); on custom destinations it's injected dynamically
 - A toast in the top-right corner confirms how many cookies were copied
 - Toolbar icon turns green when active, amber when paused, gray when no hosts are configured
 
@@ -28,8 +29,27 @@ A Chrome extension (Manifest V3) that yoinks cookies from any configured host (s
 ## Files
 
 - `manifest.json` — MV3 manifest
+- `matching.js` — pure host/destination matching + normalization logic, shared by the worker, popup, content script, and tests
 - `background.js` — service worker; listens for tab loads and copies cookies
 - `shared.js` — shared helpers (icons, render, toast) used by both popup and content script
-- `content.js` + `panel.css` — optional floating overlay panel on localhost pages
+- `content.js` + `panel.css` — optional floating overlay panel on synced (localhost/staging) pages
 - `popup.html` + `popup.js` + `popup.css` — toolbar popup
 - `icon-active.png` / `icon-paused.png` / `icon-idle.png` — status-colored toolbar icons
+
+## Tests
+
+**Unit** — the pure logic in `matching.js` (pattern matching, wildcards, normalization) is covered by Node's built-in test runner, no dependencies:
+
+```bash
+npm test          # node --test
+```
+
+**E2E** — Playwright loads the unpacked extension and drives the popup (default destinations, add/validate/pause, persistence):
+
+```bash
+npm install                              # first time
+npx playwright install chromium          # first time
+npm run test:e2e                         # playwright test
+```
+
+Both run in CI on every push/PR (`.github/workflows/`), alongside an automated Claude Code review of each PR.
