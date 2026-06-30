@@ -38,8 +38,18 @@ A Chrome extension (Manifest V3) that yoinks cookies from any configured host (s
 
 ## Tests
 
-The pure logic in `matching.js` (pattern matching, wildcards, normalization) is covered by unit tests using Node's built-in test runner — no dependencies, no build step:
+**Unit** — the pure logic in `matching.js` (pattern matching, wildcards, normalization) is covered by Node's built-in test runner, no dependencies:
 
 ```bash
 npm test          # node --test
 ```
+
+**E2E** — Playwright loads the unpacked extension and drives the popup (default destinations, add/validate/pause, persistence):
+
+```bash
+npm install                              # first time
+npx playwright install chromium          # first time
+npm run test:e2e                         # playwright test
+```
+
+Both run in CI on every push/PR (`.github/workflows/`), alongside an automated Claude Code review of each PR.

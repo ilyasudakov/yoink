@@ -5,7 +5,11 @@
   "description": "Yoink — Cookie Sync for Localhost & Staging. Chrome extension; tests cover the pure matching/normalization logic in matching.js.",
   "type": "commonjs",
   "scripts": {
-    "test": "node --test"
+    "test": "node --test",
+    "test:e2e": "playwright test"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "^1.61.1"
+  }
 }
